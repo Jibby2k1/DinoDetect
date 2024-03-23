@@ -2,6 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const path = require('path');
+
+const sentiment_taps = [0.13106442, -0.24915895, 0.33227297, -0.29157255, 0.11647423,
+  0.11647423, -0.29157255, 0.33227297, -0.24915895, 0.13106442];
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 axios.get('https://api.openai.com/v1/engines', {
@@ -36,14 +39,48 @@ let processed = []
 // POST /upload endpoint to receive message data
 app.post('/upload', (req, res) => {
   const { author, guild, channel, message } = req.body;
-
   // TODO: preprocess the message
   cheatListener = ['cheat', 'homework', 'quiz', 'test', 'exam', 'midterm', 'number', '(?:#|-?\d+(\.\d+)?)(?=#|\))', 'answers', 'discord', 'sc', 'screenshot', 'carry', 'google doc', 'DM', 'boost', 'spoiler', 'help', 'study', 'session', 'assignment', 'lab']
   const containsKeyword = cheatListener.some(keyword => message.includes(keyword));
+
+  console.log('beginning sentiment analysis')
+  const prompt = 'Given the following message from a student, please rate the sentiment on a scale of 0-10. If more context is needed, please assign a sentiment of 2. Please be very careful in the way you asses this, take a breath if you need to. In doing so make sure to assess negative sentiments with higher numbers, and positive sentiments with lower numbers: ' + message;
+
+
+  axios.post('https://api.openai.com/v1/engines/gpt-3.5-turbo-instruct/completions', {
+    prompt: prompt,
+    max_tokens: 60
+}, {
+    headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+    }
+}).then(response => {
+  const sentimentText = response.data.choices[0].text.trim();
+  const sentimentNumber = sentimentText.match(/\d+/)[0]; // Extract the first number from the string
+  const sentiment = Number(sentimentNumber)/10.0; // Convert the string to a number
+  console.log(sentiment);
+  if (processed.length >= 10) {
+    processed.shift();
+  }
+
+  processed.push({ author, guild, channel, message, timestamp: new Date(), sentiment });
+  console.log(processed.length)
+
+  if (processed.length == 10) {
+    // Assuming sentimentList and sentiment_taps are defined and have the same length
+    const multipliedValues = processed.map((sentiment) => sentiment * sentiment_taps[index]);
+    const GeneralSentiment = multipliedValues.reduce((a, b) => a + b, 0);
+    console.log(GeneralSentiment);
+  }
+
+}).catch(error => {
+    console.error(error);
+});
+
   if (containsKeyword) {
     // Perform actions for messages containing keywords
-    // TODO: Add your code here
-    console.log('beginning to process message')
+    console.log('beginning keyword process for cheating analysis')
     const prompt = 'Given the following conversation thread amongst students, check whether there may be cheating involved. Your decision does not need to be perfect and no one will be held accountable whether you are correct or incorrect. Try to minimize false positives as much as possible. With this in mind, output a single number in the range of 0-10, indicating how confident you are that the student (or students) at hand are engaged in academic cheating, with 0 indicating no cheating and 10 indicating absolute certain of illegal academic conduct. Your output must be a SINGLE integer number in the range of 0-10: ' + message;
     
     axios.post('https://api.openai.com/v1/engines/gpt-3.5-turbo-instruct/completions', {
