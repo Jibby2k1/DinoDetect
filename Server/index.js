@@ -38,7 +38,7 @@ app.post('/upload', (req, res) => {
   const { author, guild, channel, message } = req.body;
 
   // TODO: preprocess the message
-  cheatListener = ['cheat', 'homework', 'quiz', 'test', 'exam', 'midterm', 'number', '(?:#|-?\d+(\.\d+)?)(?=#|\))', 'answers', 'discord', 'sc', 'screenshot', 'carry', 'google doc', 'DM', 'boost', 'spoiler', 'help', 'study', 'session', 'assignment', 'lab', 'professor', 'teacher']
+  cheatListener = ['cheat', 'homework', 'quiz', 'test', 'exam', 'midterm', 'number', '(?:#|-?\d+(\.\d+)?)(?=#|\))', 'answers', 'discord', 'sc', 'screenshot', 'carry', 'google doc', 'DM', 'boost', 'spoiler', 'help', 'study', 'session', 'assignment', 'lab', 'professor', 'teacher', 'essay', 'paper', 'final', 'project', 'group', 'partner']
   const containsKeyword = cheatListener.some(keyword => message.includes(keyword));
   if (containsKeyword) {
     // Perform actions for messages containing keywords
