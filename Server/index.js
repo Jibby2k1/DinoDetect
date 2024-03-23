@@ -46,7 +46,7 @@ app.post('/upload', (req, res) => {
     console.log('beginning to process message')
     const prompt = 'Given the following conversation thread amongst students, check whether there may be cheating involved. Your decision does not need to be perfect and no one will be held accountable whether you are correct or incorrect. Try to minimize false positives as much as possible. With this in mind, output a single number in the range of 0-10, indicating how confident you are that the student (or students) at hand are engaged in academic cheating, with 0 indicating no cheating and 10 indicating absolute certain of illegal academic conduct. Your output must be a SINGLE integer number in the range of 0-10: ' + message;
     
-    axios.post('https://api.openai.com/v1/engines/text-davinci-002/completions', {
+    axios.post('https://api.openai.com/v1/engines/gpt-3.5-turbo-instruct/completions', {
     prompt: prompt,
     max_tokens: 60
 }, {
