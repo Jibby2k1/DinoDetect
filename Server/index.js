@@ -1,6 +1,18 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-require('dotenv').config();
+const axios = require('axios');
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+
+axios.get('https://api.openai.com/v1/engines', {
+    headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+    }
+}).then(response => {
+    console.log(response.data);
+}).catch(error => {
+    console.error(error);
+});
 
 const app = express();
 const port = 3000;
@@ -26,7 +38,28 @@ app.post('/upload', (req, res) => {
   const { author, guild, channel, message } = req.body;
 
   // TODO: preprocess the message
-
+  cheatListener = ['cheat', 'homework', 'quiz', 'test', 'exam', 'midterm', 'number', '(?:#|-?\d+(\.\d+)?)(?=#|\))', 'answers', 'discord', 'sc', 'screenshot', 'carry', 'google doc', 'DM', 'spoilers', 'boost', 'spoiler']
+  const containsKeyword = cheatListener.some(keyword => message.includes(keyword));
+  if (containsKeyword) {
+    // Perform actions for messages containing keywords
+    // TODO: Add your code here
+    console.log('beginning to process message')
+    const prompt = 'Given the following conversation thread amongst students, check whether there may be cheating involved. Your decision does not need to be perfect and no one will be held accountable whether you are correct or incorrect. Try to minimize false positives as much as possible. With this in mind, output a single number in the range of 0-10, indicating how confident you are that the student (or students) at hand are engaged in academic cheating, with 0 indicating no cheating and 10 indicating absolute certain of illegal academic conduct. Your output must be a SINGLE integer number in the range of 0-10: ' + message;
+    
+    axios.post('https://api.openai.com/v1/engines/text-davinci-002/completions', {
+    prompt: prompt,
+    max_tokens: 60
+}, {
+    headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+    }
+}).then(response => {
+    console.log(response.data.choices[0].text.trim());
+}).catch(error => {
+    console.error(error);
+});
+  }
 
   // Validate the input
   if (!author || !guild || !channel || !message) {
@@ -37,6 +70,7 @@ app.post('/upload', (req, res) => {
   // TODO: add to preprocessed
   messages.push({ author, guild, channel, message, timestamp: new Date() });
   res.status(201).json({ message: 'Message received' });
+  console.log(message);
 });
 
 // GET /analysis endpoint to retrieve messages from the last X minutes

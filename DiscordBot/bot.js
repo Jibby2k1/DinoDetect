@@ -81,13 +81,6 @@ client.on('messageCreate', async message => {
 
     // Set of keywords
  
-    cheatListener = ['cheat', 'homework', 'quiz', 'test', 'exam', 'midterm', 'number', '(?:#|-?\d+(\.\d+)?)(?=#|\))', 'answers', 'discord', 'sc', 'screenshot', 'carry', 'google doc', 'DM', 'spoilers', 'boost', 'spoiler']
-    // Check if the message contains any of the keywords
-    if (cheatListener.some(cheatListener => message.content.includes(cheatListener))) {
-        // Handle the message with the keywords
-        // TODO: Add your code here
-        
-    }
 });
 
 client.login(process.env.DISCORD_API_KEY);
