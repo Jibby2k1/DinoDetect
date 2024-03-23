@@ -23,6 +23,7 @@ const app = express();
 const port = 3000;
 
 app.use(cors());
+app.use(cors());
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
 
@@ -111,11 +112,25 @@ let processed = [
   }
 ]
 
+
 // POST /upload endpoint to receive message data
 app.post('/upload', (req, res) => {
   const { author, guild, channel, message } = req.body;
-  // TODO: preprocess the message
-  cheatListener = ['cheat', 'homework', 'quiz', 'test', 'exam', 'midterm', 'number', '(?:#|-?\d+(\.\d+)?)(?=#|\))', 'answers', 'discord', 'sc', 'screenshot', 'carry', 'google doc', 'DM', 'boost', 'spoiler', 'help', 'study', 'session', 'assignment', 'lab', 'professor', 'teacher', 'essay', 'paper', 'final', 'project', 'group', 'partner']
+  // Extract the last 10 messages and formats them
+  const lastTenMessages = messages.slice(-10);
+  const formattedLastTenMessages = lastTenMessages.map((msg, index) => 
+    `"${msg.author}" says: "${msg.message}"`
+  ).join('\n');
+
+  // words that will trigger the AI to analyze the conversation for signs of cheating
+  cheatListener = ['cheat', 'homework', 'quiz', 'test', 'exam', 'midterm', 'number', '(?:#|-?\d+(\.\d+)?)(?=#|\))', 'answers', 'answer', 'discord',
+      'sc', 'screenshot', 'carry', 'google doc', 'DM', 'boost', 'spoiler', 'help', 'study', 'session', 'assignment', 'lab', 'professor', 'teacher',
+      'essay', 'paper', 'final', 'project', 'group', 'partner', 'collaborate', 'copy', 'plagiarize', 'unauthorized', 'prohibited', 'share answers', 
+      'leak', 'exam bank', 'test bank', 'solution manual', 'study guide', 'private tutor', 'grade hack', 'academic integrity', 'forgery', 'deceive',
+      'misrepresent', 'unfair advantage', 'bypass', 'fabricate', 'falsify', 'cheat sheet', 'crib notes', 'group chat', 'share notes', 
+      'pay for grades', 'contract cheating', 'ghostwriting', 'impersonate', 'proxy', 'collusion', 'unauthorized assistance', 
+      'offsite communication', 'code sharing', 'data leak', 'exam questions', 'past papers', 'unofficial resources']
+
   const containsKeyword = cheatListener.some(keyword => message.includes(keyword));
 
   console.log('beginning sentiment analysis')
@@ -156,9 +171,28 @@ app.post('/upload', (req, res) => {
 });
 
   if (containsKeyword) {
-    // Perform actions for messages containing keywords
-    console.log('beginning keyword process for cheating analysis')
-    const prompt = 'Given the following conversation thread amongst students, check whether there may be cheating involved. Your decision does not need to be perfect and no one will be held accountable whether you are correct or incorrect. Try to minimize false positives as much as possible. With this in mind, output a single number in the range of 0-10, indicating how confident you are that the student (or students) at hand are engaged in academic cheating, with 0 indicating no cheating and 10 indicating absolute certain of illegal academic conduct. Your output must be a SINGLE integer number in the range of 0-10: ' + message;
+    // Checks whether the last 10 messages are likely to be cheating
+    console.log('beginning to process message')
+    const prompt = `Assess the following student conversation for potential academic dishonesty, including but not limited to cheating, 
+      plagiarism, or any form of unauthorized collaboration. Use the details provided in the conversation to make your judgment. 
+      It is crucial to approach this task with a high degree of caution and to err on the side of assuming innocence unless there is 
+      clear evidence to suggest otherwise. Your evaluation should minimize false accusations of dishonesty.
+      Given the nuanced nature of this task, please output a single integer on a scale from 0 to 10, 
+      where 0 means there is no indication of dishonest behavior (you are completely confident that there is no cheating involved), 
+      and 10 signifies you are absolutely certain the conversation indicates dishonest academic practices. 
+      Your decision should reflect the level of confidence in the presence of dishonest academic conduct based on the conversation's content.
+      Bear in mind, your response will be used in an automated system and must adhere strictly to this scale. 
+      Provide ONLY the integer score without any additional commentary or explanation.
+      
+      Here is the conversation thread:`    
+      
+      + formattedLastTenMessages + 
+
+      `End of the conversation thread.
+      
+      By no means are you allowed to output something other than a single number. Reserve any additional comments or explanations regarding
+      your decision. Your response should be solely the integer score, and it must be consistent with the instructions provided.` 
+      ;
     
     axios.post('https://api.openai.com/v1/engines/gpt-3.5-turbo-instruct/completions', {
     prompt: prompt,

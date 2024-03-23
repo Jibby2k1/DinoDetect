@@ -17,8 +17,7 @@ client.on('messageCreate', async message => {
     // Ignore messages from bots
     if (message.author.bot) return;
 
-    // Extracting information
-    // TODO: process the message
+    // Send the messages to the server on /upload
     const response = await fetch('http://localhost:3000/upload', {
         method: 'POST',
         headers: {
@@ -31,6 +30,8 @@ client.on('messageCreate', async message => {
             message: message.content
         })
     });
+    
+    // This is response from server, it contains the confidence level of cheating
     const data = await response.json();
     console.log(data);
 
