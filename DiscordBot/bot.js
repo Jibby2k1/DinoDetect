@@ -34,7 +34,7 @@ client.on('messageCreate', async message => {
     // This is response from server, it contains the confidence level of cheating
     const data = await response.json();
     console.log(data);
-
+    message.channel.send(data);
     console.log(`Message from ${message.author.tag} in ${message.guild.name}#${message.channel.name}: ${message.content}`);
 
     // Command handling for summarizing
