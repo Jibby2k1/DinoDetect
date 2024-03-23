@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const path = require('path');
+const cors = require('cors');
 
 const sentiment_taps = [0.13106442, -0.24915895, 0.33227297, -0.29157255, 0.11647423,
   0.11647423, -0.29157255, 0.33227297, -0.24915895, 0.13106442];
@@ -20,27 +21,100 @@ axios.get('https://api.openai.com/v1/engines', {
 const app = express();
 const port = 3000;
 
+app.use(cors());
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
 
 // In-memory storage for messages
 let messages = [];
-let processed = []
-// {
-//   author: "test",
-//   guild: "test",
-//   channel: "test",
-//   message: "test",
-//   timestamp: new Date(),
-//   sentiment: 4,
-//   ...
-// }
+let processed = [
+  {
+    author: "User123",
+    guild: "GuildA",
+    channel: "Channel1",
+    message: "Hello, everyone!",
+    timestamp: new Date("2024-03-23T10:00:00"),
+    sentiment: 4,
+  },
+  {
+    author: "User456",
+    guild: "GuildA",
+    channel: "Channel2",
+    message: "Good morning!",
+    timestamp: new Date("2024-03-23T10:05:00"),
+    sentiment: 3,
+  },
+  {
+    author: "User123",
+    guild: "GuildB",
+    channel: "Channel1",
+    message: "How's everyone doing?",
+    timestamp: new Date("2024-03-23T10:10:00"),
+    sentiment: 5,
+  },
+  {
+    author: "User789",
+    guild: "GuildA",
+    channel: "Channel3",
+    message: "Nice to see you all.",
+    timestamp: new Date("2024-03-23T10:15:00"),
+    sentiment: 4,
+  },
+  {
+    author: "User456",
+    guild: "GuildB",
+    channel: "Channel2",
+    message: "Hope you're all well.",
+    timestamp: new Date("2024-03-23T10:20:00"),
+    sentiment: 3,
+  },
+  {
+    author: "User123",
+    guild: "GuildA",
+    channel: "Channel1",
+    message: "Lovely day, isn't it?",
+    timestamp: new Date("2024-03-23T10:25:00"),
+    sentiment: 5,
+  },
+  {
+    author: "User789",
+    guild: "GuildC",
+    channel: "Channel3",
+    message: "Looking forward to our discussion.",
+    timestamp: new Date("2024-03-23T10:30:00"),
+    sentiment: 4,
+  },
+  {
+    author: "User456",
+    guild: "GuildA",
+    channel: "Channel2",
+    message: "Let's get started!",
+    timestamp: new Date("2024-03-23T10:35:00"),
+    sentiment: 3,
+  },
+  {
+    author: "User123",
+    guild: "GuildB",
+    channel: "Channel1",
+    message: "Any updates from everyone?",
+    timestamp: new Date("2024-03-23T10:40:00"),
+    sentiment: 4,
+  },
+  {
+    author: "User789",
+    guild: "GuildA",
+    channel: "Channel3",
+    message: "Excited for today's agenda!",
+    timestamp: new Date("2024-03-23T10:45:00"),
+    sentiment: 5,
+  }
+]
 
 // POST /upload endpoint to receive message data
 app.post('/upload', (req, res) => {
   const { author, guild, channel, message } = req.body;
   // TODO: preprocess the message
-  cheatListener = ['cheat', 'homework', 'quiz', 'test', 'exam', 'midterm', 'number', '(?:#|-?\d+(\.\d+)?)(?=#|\))', 'answers', 'discord', 'sc', 'screenshot', 'carry', 'google doc', 'DM', 'boost', 'spoiler', 'help', 'study', 'session', 'assignment', 'lab']
+  cheatListener = ['cheat', 'homework', 'quiz', 'test', 'exam', 'midterm', 'number', '(?:#|-?\d+(\.\d+)?)(?=#|\))', 'answers', 'discord', 'sc', 'screenshot', 'carry', 'google doc', 'DM', 'boost', 'spoiler', 'help', 'study', 'session', 'assignment', 'lab', 'professor', 'teacher', 'essay', 'paper', 'final', 'project', 'group', 'partner']
   const containsKeyword = cheatListener.some(keyword => message.includes(keyword));
 
   console.log('beginning sentiment analysis')
