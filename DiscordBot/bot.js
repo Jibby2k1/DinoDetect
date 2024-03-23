@@ -1,8 +1,8 @@
+const path = require('path');
 const { Client, GatewayIntentBits } = require('discord.js');
-require('dotenv').config();
-
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+console.log(process.env.DISCORD_API_KEY)
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
-
 client.once('ready', () => {
     console.log('Bot is online!');
 });
