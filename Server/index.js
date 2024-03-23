@@ -4,8 +4,9 @@ const axios = require('axios');
 const path = require('path');
 const cors = require('cors');
 
-const sentiment_taps = [0.13106442, -0.24915895, 0.33227297, -0.29157255, 0.11647423,
-  0.11647423, -0.29157255, 0.33227297, -0.24915895, 0.13106442];
+
+const sentiment_taps = [0.04174125, 0.12977557, 0.26427815, 0.40558056, 0.49706885,
+  0.49706885, 0.40558056, 0.26427815, 0.12977557, 0.04174125];
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 axios.get('https://api.openai.com/v1/engines', {
@@ -139,12 +140,14 @@ app.post('/upload', (req, res) => {
   }
 
   processed.push({ author, guild, channel, message, timestamp: new Date(), sentiment });
+  console.log(processed)
   console.log(processed.length)
 
   if (processed.length == 10) {
     // Assuming sentimentList and sentiment_taps are defined and have the same length
-    const multipliedValues = processed.map((sentiment) => sentiment * sentiment_taps[index]);
-    const GeneralSentiment = multipliedValues.reduce((a, b) => a + b, 0);
+    console.log('General Sentiment Analysis:')
+    const multipliedValues = processed.map((item, index) => item.sentiment * sentiment_taps[index]);    
+    const GeneralSentiment = (multipliedValues.reduce((a, b) => a + b, 0))/(2.6768887497449967);
     console.log(GeneralSentiment);
   }
 
