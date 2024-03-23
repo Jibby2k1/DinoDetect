@@ -1,6 +1,6 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Text } from 'recharts';
-import { Container, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -21,7 +21,7 @@ const MessageLineChart = ({ labels, values, title, xAxisTitle, yAxisTitle, onLin
   }));
 
   return (
-    <Container maxWidth="sm">
+    <Box maxWidth="sm">
       <Typography variant="h2">{title}</Typography>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart
@@ -41,7 +41,7 @@ const MessageLineChart = ({ labels, values, title, xAxisTitle, yAxisTitle, onLin
           <Line type="monotone" dataKey="value" stroke="#8884d8" activeDot={{ onClick: onLineClick }} />
         </LineChart>
       </ResponsiveContainer>
-    </Container>
+    </Box>
   );
 };
 

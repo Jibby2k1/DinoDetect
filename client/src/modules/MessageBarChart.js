@@ -1,6 +1,6 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Text } from 'recharts';
-import { Container, Typography } from '@mui/material';
+import { Box , Typography } from '@mui/material';
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -21,7 +21,7 @@ const MessageBarChart = ({ labels, values, title, xAxisTitle, yAxisTitle, onBarC
   }));
 
   return (
-    <Container maxWidth="sm">
+    <Box  maxWidth="sm">
       <Typography variant="h2">{title}</Typography>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart
@@ -41,7 +41,7 @@ const MessageBarChart = ({ labels, values, title, xAxisTitle, yAxisTitle, onBarC
           <Bar dataKey="value" fill="#8884d8" onClick={onBarClick} />
         </BarChart>
       </ResponsiveContainer>
-    </Container>
+    </Box >
   );
 };
 
