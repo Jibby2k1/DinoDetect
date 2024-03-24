@@ -1,5 +1,5 @@
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Text } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Box, Typography } from '@mui/material';
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -14,15 +14,35 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
+const aggregateData = (labels, values) => {
+  const aggregationFactor = Math.ceil(labels.length / 100);
+  const aggregatedData = [];
+
+  for (let i = 0; i < labels.length; i += aggregationFactor) {
+    const aggregatedLabels = labels.slice(i, i + aggregationFactor);
+    const aggregatedValues = values.slice(i, i + aggregationFactor);
+
+    const avgValue = aggregatedValues.reduce((acc, val) => acc + val, 0) / aggregatedValues.length;
+    aggregatedData.push({
+      label: aggregatedLabels[0], // Use the first label of the group
+      value: avgValue,
+    });
+  }
+
+  return aggregatedData;
+};
+
 const MessageLineChart = ({ labels, values, title, xAxisTitle, yAxisTitle, onLineClick }) => {
-  const data = labels.map((label, index) => ({
+  console.log("amt of labels: ", labels.length);
+
+  const data = labels.length > 100 ? aggregateData(labels, values) : labels.map((label, index) => ({
     label: label,
     value: values[index],
   }));
 
   return (
     <Box maxWidth="sm">
-      <Typography variant="h2">{title}</Typography>
+      <Typography width="500px" variant="h4" textAlign="center">{title}</Typography>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart
           data={data}
@@ -30,7 +50,7 @@ const MessageLineChart = ({ labels, values, title, xAxisTitle, yAxisTitle, onLin
             top: 20,
             right: 30,
             left: 20,
-            bottom: 25, // Adjusted bottom margin for X-axis title
+            bottom: 25,
           }}
         >
           <CartesianGrid strokeDasharray="3 3" />

@@ -4,10 +4,13 @@ const axios = require('axios');
 const path = require('path');
 const cors = require('cors');
 const { time } = require('console');
+const openai = require('openai');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+
+const openai_client = new openai.OpenAI(process.env.OPENAI_API_KEY);
 
 const sentiment_taps = [0.04174125, 0.12977557, 0.26427815, 0.40558056, 0.49706885,
   0.49706885, 0.40558056, 0.26427815, 0.12977557, 0.04174125];
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 let data = {
   'test_user': {'test_word': {'wordcount': 0, 'timestamp': []}},
@@ -41,98 +44,97 @@ const app = express();
 const port = 3000;
 
 app.use(cors());
-app.use(cors());
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
 
 // In-memory storage for messages
 let messages = [];
 let processed = [
-  {
-    author: "User123",
-    guild: "GuildA",
-    channel: "Channel1",
-    message: "Hello, everyone!",
-    timestamp: new Date("2024-03-23T10:00:00"),
-    sentiment: 0.4,
-  },
-  {
-    author: "User456",
-    guild: "GuildA",
-    channel: "Channel2",
-    message: "Good morning!",
-    timestamp: new Date("2024-03-23T10:05:00"),
-    sentiment: 0.3,
-  },
-  {
-    author: "User123",
-    guild: "GuildB",
-    channel: "Channel1",
-    message: "How's everyone doing?",
-    timestamp: new Date("2024-03-23T10:10:00"),
-    sentiment: 0.5,
-  },
-  {
-    author: "User789",
-    guild: "GuildA",
-    channel: "Channel3",
-    message: "Nice to see you all.",
-    timestamp: new Date("2024-03-23T10:15:00"),
-    sentiment: 0.4,
-  },
-  {
-    author: "User456",
-    guild: "GuildB",
-    channel: "Channel2",
-    message: "Hope you're all well.",
-    timestamp: new Date("2024-03-23T10:20:00"),
-    sentiment: 0.3,
-  },
-  {
-    author: "User123",
-    guild: "GuildA",
-    channel: "Channel1",
-    message: "Lovely day, isn't it?",
-    timestamp: new Date("2024-03-23T10:25:00"),
-    sentiment: 0.5,
-  },
-  {
-    author: "User789",
-    guild: "GuildC",
-    channel: "Channel3",
-    message: "Looking forward to our discussion.",
-    timestamp: new Date("2024-03-23T10:30:00"),
-    sentiment: 0.4,
-  },
-  {
-    author: "User456",
-    guild: "GuildA",
-    channel: "Channel2",
-    message: "Let's get started!",
-    timestamp: new Date("2024-03-23T10:35:00"),
-    sentiment: 0.3,
-  },
-  {
-    author: "User123",
-    guild: "GuildB",
-    channel: "Channel1",
-    message: "Any updates from everyone?",
-    timestamp: new Date("2024-03-23T10:40:00"),
-    sentiment: 0.4,
-  },
-  {
-    author: "User789",
-    guild: "GuildA",
-    channel: "Channel3",
-    message: "Excited for today's agenda!",
-    timestamp: new Date("2024-03-23T10:45:00"),
-    sentiment: 0.5,
-  }
+  // {
+  //   author: "User123",
+  //   guild: "GuildA",
+  //   channel: "Channel1",
+  //   message: "Hello, everyone!",
+  //   timestamp: new Date("2024-03-23T10:00:00"),
+  //   sentiment: 4,
+  // },
+  // {
+  //   author: "User456",
+  //   guild: "GuildA",
+  //   channel: "Channel2",
+  //   message: "Good morning!",
+  //   timestamp: new Date("2024-03-23T10:05:00"),
+  //   sentiment: 3,
+  // },
+  // {
+  //   author: "User123",
+  //   guild: "GuildB",
+  //   channel: "Channel1",
+  //   message: "How's everyone doing?",
+  //   timestamp: new Date("2024-03-23T10:10:00"),
+  //   sentiment: 5,
+  // },
+  // {
+  //   author: "User789",
+  //   guild: "GuildA",
+  //   channel: "Channel3",
+  //   message: "Nice to see you all.",
+  //   timestamp: new Date("2024-03-23T10:15:00"),
+  //   sentiment: 4,
+  // },
+  // {
+  //   author: "User456",
+  //   guild: "GuildB",
+  //   channel: "Channel2",
+  //   message: "Hope you're all well.",
+  //   timestamp: new Date("2024-03-23T10:20:00"),
+  //   sentiment: 3,
+  // },
+  // {
+  //   author: "User123",
+  //   guild: "GuildA",
+  //   channel: "Channel1",
+  //   message: "Lovely day, isn't it?",
+  //   timestamp: new Date("2024-03-23T10:25:00"),
+  //   sentiment: 5,
+  // },
+  // {
+  //   author: "User789",
+  //   guild: "GuildC",
+  //   channel: "Channel3",
+  //   message: "Looking forward to our discussion.",
+  //   timestamp: new Date("2024-03-23T10:30:00"),
+  //   sentiment: 4,
+  // },
+  // {
+  //   author: "User456",
+  //   guild: "GuildA",
+  //   channel: "Channel2",
+  //   message: "Let's get started!",
+  //   timestamp: new Date("2024-03-23T10:35:00"),
+  //   sentiment: 3,
+  // },
+  // {
+  //   author: "User123",
+  //   guild: "GuildB",
+  //   channel: "Channel1",
+  //   message: "Any updates from everyone?",
+  //   timestamp: new Date("2024-03-23T10:40:00"),
+  //   sentiment: 4,
+  // },
+  // {
+  //   author: "User789",
+  //   guild: "GuildA",
+  //   channel: "Channel3",
+  //   message: "Excited for today's agenda!",
+  //   timestamp: new Date("2024-03-23T10:45:00"),
+  //   sentiment: 5,
+  // }
 ]
 
 // POST /upload endpoint to receive message data
-app.post('/upload', (req, res) => {
-  const { author, guild, channel, message } = req.body;
+app.post('/upload', async (req, res) => {
+  const { author, guild, channel, message, date } = req.body;
   // Extract the last 10 messages and formats them
   const lastTenMessages = messages.slice(-10);
   const formattedLastTenMessages = lastTenMessages.map((msg, index) => 
@@ -152,41 +154,84 @@ app.post('/upload', (req, res) => {
 
   const containsKeyword = cheatListener.some(keyword => message.includes(keyword));
 
+
+  messages = [{"role": "user", "content": message}]
+  tools = [
+      {
+          "type": "function",
+          "function": {
+              "name": "analyze_message",
+              "description": "Analyze the message according to sentiment, category, subject.",
+              "parameters": {
+                  "type": "object",
+                  "properties": {
+                      "sentiment": {
+                          "type": "integer",
+                          "description": "The sentiment of the message from depressed (0) to overjoyed (9).",
+                      },
+                      "category": {
+                        "type": "string",
+                        "description": "The category of the message.",
+                        "enum": ["feedback", "news", "chat", "question", "other"]
+                      },
+                      "subject": {
+                          "type": "string",
+                          "description": "The subject of the message.",
+                          "enum": ["artificial intelligence", "devops", "full-stack development", "no code", "other"]
+                      },
+                  },
+                  "required": ["sentiment", "category", "subject"],
+              },
+          },
+      }
+  ]
+  const fc_res = await openai_client.chat.completions.create({
+    model: "gpt-3.5-turbo-0125",
+    messages: messages,
+    tools: tools,
+    tool_choice: {"type": "function", "function": {"name": "analyze_message"}}
+  })
+  const json_args = JSON.parse(fc_res.choices[0].message.tool_calls[0].function.arguments)
+
   console.log('beginning sentiment analysis')
   const prompt = 'Given the following message from a student, please rate the sentiment on a scale of 0-10. If more context is needed, please assign a sentiment of 2. Please be very careful in the way you asses this, take a breath if you need to. In doing so make sure to assess negative sentiments with higher numbers, and positive sentiments with lower numbers: ' + message;
 
-  axios.post('https://api.openai.com/v1/engines/gpt-3.5-turbo-instruct/completions', {
-    prompt: prompt,
-    max_tokens: 60
-}, {
-    headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json'
-    }
-}).then(response => {
-  const sentimentText = response.data.choices[0].text.trim();
-  const sentimentNumber = sentimentText.match(/\d+/)[0]; // Extract the first number from the string
-  const sentiment = Number(sentimentNumber)/10.0; // Convert the string to a number
-  console.log(sentiment);
-  if (processed.length >= 10) {
-    processed.shift();
-  }
 
-  processed.push({ author, guild, channel, message, timestamp: new Date(), sentiment });
-  console.log(processed)
-  console.log(processed.length)
+  // axios.post('https://api.openai.com/v1/engines/gpt-3.5-turbo-instruct/completions', {
+  //   prompt: prompt,
+  //   max_tokens: 60
+  // }, {
+  //     headers: {
+  //         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+  //         'Content-Type': 'application/json'
+  //     }
+  // }).then(response => {
+  //   const sentimentText = response.data.choices[0].text.trim();
+  //   const sentimentNumber = sentimentText.match(/\d+/)[0]; // Extract the first number from the string
+  //   const sentiment = Number(sentimentNumber)/10.0; // Convert the string to a number
+  //   console.log(sentiment);
+  //   if (processed.length >= 10) {
+  //     processed.shift();
+  //   }
 
-  if (processed.length == 10) {
-    // Assuming sentimentList and sentiment_taps are defined and have the same length
-    console.log('General Sentiment Analysis:')
-    const multipliedValues = processed.map((item, index) => item.sentiment * sentiment_taps[index]);    
-    const GeneralSentiment = (multipliedValues.reduce((a, b) => a + b, 0))/(2.6768887497449967);
-    console.log(GeneralSentiment);
-  }
+  //   processed.push({ author, guild, channel, message, timestamp: new Date(), sentiment });
+  //   console.log(processed)
+  //   console.log(processed.length)
 
-}).catch(error => {
-    console.error(error);
-});
+  //   if (processed.length == 10) {
+  //     // Assuming sentimentList and sentiment_taps are defined and have the same length
+  //     console.log('General Sentiment Analysis:')
+  //     const multipliedValues = processed.map((item, index) => item.sentiment * sentiment_taps[index]);    
+  //     const GeneralSentiment = (multipliedValues.reduce((a, b) => a + b, 0))/(2.6768887497449967);
+  //     console.log(GeneralSentiment);
+  //   }
+
+  // }).catch(error => {
+  //     console.error(error);
+  // });
+
+  console.log('end sentiment analysis')
+  processed.push({ author, guild, channel, message, timestamp: new Date(date), ...json_args });
 
   if (containsKeyword) {
     // Checks whether the last 10 messages are likely to be cheating
@@ -213,18 +258,18 @@ app.post('/upload', (req, res) => {
       ;
     
     axios.post('https://api.openai.com/v1/engines/gpt-3.5-turbo-instruct/completions', {
-    prompt: prompt,
-    max_tokens: 60
-}, {
-    headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json'
-    }
-}).then(response => {
-    console.log(response.data.choices[0].text.trim());
-}).catch(error => {
-    console.error(error);
-});
+        prompt: prompt,
+        max_tokens: 60
+    }, {
+        headers: {
+            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+            'Content-Type': 'application/json'
+        }
+    }).then(response => {
+        console.log(response.data.choices[0].text.trim());
+    }).catch(error => {
+        console.error(error);
+    });
   }
 
   // Validate the input
@@ -233,9 +278,11 @@ app.post('/upload', (req, res) => {
   }
 
   // Add the message to the storage
-  messages.push({ author, guild, channel, message, timestamp: new Date() });
+  // TODO: add to preprocessed
+  messages.push({ author, guild, channel, message, timestamp: new Date(date)});
   res.status(201).json({ message: 'Message received' });
   console.log(message);
+  console.log("len of processed: ", processed.length);
 });
 
 // GET /analysis endpoint to retrieve messages from the last X minutes
@@ -251,6 +298,9 @@ app.get('/analysis', (req, res) => {
   const recentMessages = messages.filter(message => message.timestamp > threshold);
   const recentPreprocessed = processed.filter(message => message.timestamp > threshold);
   // You can modify this to return any specific analysis of the messages
+  
+  // console.log("current processed: ", processed)
+  
   res.json({
     count: recentMessages.length,
     messages: recentMessages,

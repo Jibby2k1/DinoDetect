@@ -20,14 +20,30 @@ client.once('ready', async () => {
         const channels = guild.channels.cache.filter(c => c.name === CHANNEL_NAME);
         
         for (let channel of channels.values()) {
-            console.log('inside')
-            
+            console.log('inside');
+
             try {
                 // Fetch the last 10 messages from each 'general' channel found
-                const messages = await channel.messages.fetch({ limit: 10 });
+                const messages = await channel.messages.fetch({ limit: 70 });
                 // TODO: STORE MESSAGES
+
                 console.log(`Last messages in ${guild.name} #${channel.name}:`);
-                messages.forEach(msg => console.log(`${msg.author.tag}: ${msg.content}`));
+                messages.forEach(async (msg) => {
+                    const response = await fetch('http://localhost:3000/upload', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            author: msg.author.tag,
+                            guild: guild.name,
+                            channel: channel.name,
+                            // date that the message was sent
+                            date: msg.createdTimestamp,
+                            message: msg.content
+                        })
+                    });
+                });
             } catch (error) {
                 console.error(`Could not fetch messages from #${channel.name} in ${guild.name}:`, error);
             }
@@ -49,6 +65,7 @@ client.on('messageCreate', async message => {
             author: message.author.tag,
             guild: message.guild.name,
             channel: message.channel.name,
+            date: message.createdTimestamp,
             message: message.content
         })
     });
