@@ -6,6 +6,7 @@ import('node-fetch').then(nodeFetch => {
 
 const path = require('path');
 const { Client, GatewayIntentBits } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 console.log(process.env.DISCORD_API_KEY)
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
@@ -34,8 +35,27 @@ client.on('messageCreate', async message => {
     // This is response from server, it contains the confidence level of cheating
     const data = await response.json();
     console.log(data);
-    message.channel.send(data);
     console.log(`Message from ${message.author.tag} in ${message.guild.name}#${message.channel.name}: ${message.content}`);
+
+    // Command for generating Word Clouds, 
+    if (message.content.startsWith('/wordcloud')) {
+        console.log('Word Cloud command received');
+        const args = message.content.slice('/wordcloud'.length).trim().split(/ +/);
+        let name = args[0]; // assuming the first argument is the name of person to generate word cloud for
+
+        if (!name) {
+            name = "server"; // set name to server if no argument is passed
+        }
+        
+        // generates a word cloud image and sends it to the channel
+        const imageUrl = 'https://imgur.com/a/RkZqsyv.png'; 
+        // Create an AttachmentBuilder instance for the image
+        const wordCloudEmbed = new EmbedBuilder()
+        .setImage('https://ibb.co/4RJ9HGS') 
+
+        //message.channel.send('https://imgur.com/a/RkZqsyv.jpg')
+        message.channel.send({ embeds: [wordCloudEmbed] }).catch(console.error);
+    }
 
     // Command handling for summarizing
     if (message.content.startsWith('/analysis')) {
