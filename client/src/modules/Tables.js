@@ -6,8 +6,8 @@ const Tables = ({ messages }) => {
     let data = {
       labels: [],
       values: [],
-      title: "Average Sentiment",
-      xAxisTitle: "Score",
+      title: "Cumulative Sentiment",
+      xAxisTitle: "Time",
       yAxisTitle: "Sentiment",
     };
     if (!messages.length) {
@@ -28,7 +28,7 @@ const Tables = ({ messages }) => {
       labels: [],
       values: [],
       title: "Average Sentiment",
-      xAxisTitle: "Score",
+      xAxisTitle: "Time",
       yAxisTitle: "Sentiment",
     };
     if (!messages.length) {

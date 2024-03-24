@@ -31,27 +31,6 @@ const App = () => {
     setMinutes(newValue);
   };
 
-  const averageSentimentData = useCallback(() => {
-    let data = {
-      labels: [],
-      values: [],
-      title: "Average Sentiment",
-      xAxisTitle: "Score",
-      yAxisTitle: "Sentiment",
-    };
-    if (!messages.length) {
-      return data;
-    }
-    for (let i = 0; i < 10; i++) {
-      data.labels.push(i);
-      data.values.push(0);
-    }
-    for (let i = 0; i < messages.length; i++) {
-      data.values[messages[i].sentiment]++;
-    }
-    return data;
-  }, [messages]);
-
   const days = Math.floor(minutes / 1440);
   const hours = Math.floor((minutes % 1440) / 60);
   const remainingMinutes = minutes % 60;
