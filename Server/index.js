@@ -3,6 +3,32 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 const path = require('path');
 const cors = require('cors');
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
+const firebaseConfig = {
+  apiKey: "AIzaSyCfBn-nQAv3EyAdS27QTY7wKXx_Yh88A3g",
+  authDomain: "dinodetector.firebaseapp.com",
+  projectId: "dinodetector",
+  storageBucket: "dinodetector.appspot.com",
+  messagingSenderId: "859368794670",
+  appId: "1:859368794670:web:1320c3636fb70e04b8cdbf",
+  measurementId: "G-KLKC8LV4KC"
+};
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+
+try {
+  const docRef = await addDoc(collection(db, "users"), {
+    username: "catiasilva",
+    toxictyCount: 0
+  });
+  console.log("Document written with ID: ", docRef.id);
+} catch (e) {
+  console.error("Error adding document: ", e);
+}
 
 
 const sentiment_taps = [0.04174125, 0.12977557, 0.26427815, 0.40558056, 0.49706885,
@@ -19,19 +45,19 @@ axios.get('https://api.openai.com/v1/engines', {
     console.error(error);
 });
 
-const app = express();
+const app1 = express();
 const port = 3000;
 
-app.use(cors());
-app.use(cors());
+app1.use(cors());
+app1.use(cors());
 // Middleware to parse JSON bodies
-app.use(bodyParser.json());
+app1.use(bodyParser.json());
 
 // In-memory storage for messages
 let messages = [];
 
 // POST /upload endpoint to receive message data
-app.post('/upload', (req, res) => {
+app1.post('/upload', async (req, res) => {
   const { author, guild, channel, message } = req.body;
   // Extract the last 10 messages and formats them
   const lastTenMessages = messages.slice(-10);
@@ -39,19 +65,31 @@ app.post('/upload', (req, res) => {
     `"${msg.author}" says: "${msg.message}"`
   ).join('\n');
 
-  // words that will trigger the AI to analyze the conversation for signs of cheating
-  cheatListener = ['cheat', 'homework', 'quiz', 'test', 'exam', 'midterm', 'number', '(?:#|-?\d+(\.\d+)?)(?=#|\))', 'answers', 'answer', 'discord',
-      'sc', 'screenshot', 'carry', 'google doc', 'DM', 'boost', 'spoiler', 'help', 'study', 'session', 'assignment', 'lab', 'professor', 'teacher',
-      'essay', 'paper', 'final', 'project', 'group', 'partner', 'collaborate', 'copy', 'plagiarize', 'unauthorized', 'prohibited', 'share answers', 
-      'leak', 'exam bank', 'test bank', 'solution manual', 'study guide', 'private tutor', 'grade hack', 'academic integrity', 'forgery', 'deceive',
-      'misrepresent', 'unfair advantage', 'bypass', 'fabricate', 'falsify', 'cheat sheet', 'crib notes', 'group chat', 'share notes', 
-      'pay for grades', 'contract cheating', 'ghostwriting', 'impersonate', 'proxy', 'collusion', 'unauthorized assistance', 
-      'offsite communication', 'code sharing', 'data leak', 'exam questions', 'past papers', 'unofficial resources']
+  const querySnapshot = await getDocs(collection(db, "users"));
+  querySnapshot.forEach((doc) => {
+  console.log(`${doc.id} => ${doc.data()}`);
+});
 
-  toxicKeywords = ["abuse", "assault", "attack", "bigot", "bully", "aids", "cancer", "retard", "nigga", "nigger", "kike", "monkey", "idiot", "stupid", "insane", "mental", "death threat", "disgusting", "hate speech", "harass", "kill", "racist", "rape", "sexist", "threaten", "violent", "xenophobe", "dyke", "kike", "spic", "stab", "murder", "rip"];
-    
-    
-  const containsKeyword = cheatListener.some(keyword => message.includes(keyword));
+  // words that will trigger the AI to analyze the conversation for signs of cheating
+  cheatListener = ['cheat', 'homework', 'quiz', 'test', 'exam', 'midterm', 'number', 
+  '(?:#|-?\d+(\.\d+)?)(?=#|\))', 'answers', 'answer', 'discord', 'sc', 'screenshot', 
+  'carry', 'google doc', 'DM', 'boost', 'spoiler', 'help', 'study', 'session', 'assignment', 
+  'lab', 'professor', 'teacher', 'essay', 'paper', 'final', 'project', 'group', 'partner', 
+  'collaborate', 'copy', 'plagiarize', 'unauthorized', 'prohibited', 'share answers', 
+  'leak', 'exam bank', 'test bank', 'solution manual', 'study guide', 'private tutor', 
+  'grade hack', 'academic integrity', 'forgery', 'deceive', 'misrepresent', 'unfair advantage', 
+  'bypass', 'fabricate', 'falsify', 'cheat sheet', 'crib notes', 'group chat', 'share notes', 
+  'pay for grades', 'contract cheating', 'ghostwriting', 'impersonate', 'proxy', 'collusion', 
+  'unauthorized assistance', 'offsite communication', 'code sharing', 'data leak', 
+  'exam questions', 'past papers', 'unofficial resources']
+
+  toxicListener = ["abuse", "assault", "attack", "bigot", "bully", "aids", "cancer", 
+  "retard", "nigga", "nigger", "kike", "monkey", "idiot", "stupid", "insane", "mental", 
+  "death threat", "disgusting", "hate speech", "harass", "kill", "racist", "rape", "sexist", 
+  "threaten", "violent", "xenophobe", "dyke", "kike", "spic", "stab", "murder", "rip"];
+
+  const containsCheatWord = cheatListener.some(keyword => message.includes(keyword));
+  const containsToxicWord = toxicListener.some(keyword => message.includes(keyword));
 
   console.log('beginning sentiment analysis')
   const prompt = 'Given the following message from a student, please rate the sentiment on a scale of 0-10. If more context is needed, please assign a sentiment of 2. Please be very careful in the way you asses this, take a breath if you need to. In doing so make sure to assess negative sentiments with higher numbers, and positive sentiments with lower numbers: ' + message;
@@ -90,7 +128,7 @@ app.post('/upload', (req, res) => {
     console.error(error);
 });
 
-  if (containsKeyword) {
+  if (containsCheatWord) {
     // Checks whether the last 10 messages are likely to be cheating
     console.log('beginning to process message')
     const prompt = `Assess the following student conversation for potential academic dishonesty, including but not limited to cheating, 
@@ -142,7 +180,7 @@ app.post('/upload', (req, res) => {
 });
 
 // GET /analysis endpoint to retrieve messages from the last X minutes
-app.get('/analysis', (req, res) => {
+app1.get('/analysis', (req, res) => {
   const { minutes } = req.query;
 
   // Validate the input
@@ -162,10 +200,10 @@ app.get('/analysis', (req, res) => {
 });
 
 // create a root get endpoint that will display preprocessed data
-app.get('/', (req, res) => {
+app1.get('/', (req, res) => {
   res.json({processed, messages});
 });
 
-app.listen(port, () => {
+app1.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });

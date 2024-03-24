@@ -43,6 +43,8 @@ const Tables = ({ messages }) => {
     return data;
   }, [messages])
 
+  
+
   // display a list of tables, the first table will be MessageBarChart using averageSentimentBarData then the next will be MessageLineChart using averageSentimentLineData
   return (
     <div style={{ display: 'flex', flexDirection: 'row', width: '100%', flexWrap: 'wrap' }}>
