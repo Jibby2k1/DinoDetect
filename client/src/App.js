@@ -21,6 +21,25 @@ const App = () => {
 
     return () => clearInterval(interval); // Clear interval on component unmount or minutes change
   }, [minutes]); // Dependency array, effect runs when 'minutes' changes
+  const handleDataReceived = (data) => {
+    // Process the received data and generate a line graph
+    console.log("Data received:", data);
+    // Implement your line graph generation logic here
+  };
+
+  useEffect(() => {
+    const fetchData = () => {
+      fetch("http://localhost:3000/data")
+        .then((res) => res.json())
+        .then((data) => handleDataReceived(data))
+        .catch((error) => console.error("Error fetching data:", error));
+    };
+
+    fetchData(); // Fetch immediately on component mount
+    const interval = setInterval(fetchData, 1000); // Then every second
+
+    return () => clearInterval(interval); // Clear interval on component unmount
+  }, []);
 
   const handleBarClick = (data, index) => {
     // Implement your click handling logic here

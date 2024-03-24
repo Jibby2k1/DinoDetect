@@ -54,7 +54,7 @@ let processed = [
     channel: "Channel1",
     message: "Hello, everyone!",
     timestamp: new Date("2024-03-23T10:00:00"),
-    sentiment: 4,
+    sentiment: 0.4,
   },
   {
     author: "User456",
@@ -62,7 +62,7 @@ let processed = [
     channel: "Channel2",
     message: "Good morning!",
     timestamp: new Date("2024-03-23T10:05:00"),
-    sentiment: 3,
+    sentiment: 0.3,
   },
   {
     author: "User123",
@@ -70,7 +70,7 @@ let processed = [
     channel: "Channel1",
     message: "How's everyone doing?",
     timestamp: new Date("2024-03-23T10:10:00"),
-    sentiment: 5,
+    sentiment: 0.5,
   },
   {
     author: "User789",
@@ -78,7 +78,7 @@ let processed = [
     channel: "Channel3",
     message: "Nice to see you all.",
     timestamp: new Date("2024-03-23T10:15:00"),
-    sentiment: 4,
+    sentiment: 0.4,
   },
   {
     author: "User456",
@@ -86,7 +86,7 @@ let processed = [
     channel: "Channel2",
     message: "Hope you're all well.",
     timestamp: new Date("2024-03-23T10:20:00"),
-    sentiment: 3,
+    sentiment: 0.3,
   },
   {
     author: "User123",
@@ -94,7 +94,7 @@ let processed = [
     channel: "Channel1",
     message: "Lovely day, isn't it?",
     timestamp: new Date("2024-03-23T10:25:00"),
-    sentiment: 5,
+    sentiment: 0.5,
   },
   {
     author: "User789",
@@ -102,7 +102,7 @@ let processed = [
     channel: "Channel3",
     message: "Looking forward to our discussion.",
     timestamp: new Date("2024-03-23T10:30:00"),
-    sentiment: 4,
+    sentiment: 0.4,
   },
   {
     author: "User456",
@@ -110,7 +110,7 @@ let processed = [
     channel: "Channel2",
     message: "Let's get started!",
     timestamp: new Date("2024-03-23T10:35:00"),
-    sentiment: 3,
+    sentiment: 0.3,
   },
   {
     author: "User123",
@@ -118,7 +118,7 @@ let processed = [
     channel: "Channel1",
     message: "Any updates from everyone?",
     timestamp: new Date("2024-03-23T10:40:00"),
-    sentiment: 4,
+    sentiment: 0.4,
   },
   {
     author: "User789",
@@ -126,7 +126,7 @@ let processed = [
     channel: "Channel3",
     message: "Excited for today's agenda!",
     timestamp: new Date("2024-03-23T10:45:00"),
-    sentiment: 5,
+    sentiment: 0.5,
   }
 ]
 
