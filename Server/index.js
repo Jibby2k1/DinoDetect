@@ -4,20 +4,30 @@ const axios = require('axios');
 const path = require('path');
 const cors = require('cors');
 
-
 const sentiment_taps = [0.04174125, 0.12977557, 0.26427815, 0.40558056, 0.49706885,
   0.49706885, 0.40558056, 0.26427815, 0.12977557, 0.04174125];
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
-// axios.get('https://api.openai.com/v1/engines', {
-//     headers: {
-//         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-//     }
-// }).then(response => {
-//     console.log(response.data);
-// }).catch(error => {
-//     console.error(error);
-// });
+let data = {
+  'test_user': {'test_word': 0},
+}
+toxicListener = ["abuse", "assault", "attack", "bigot", "bully", "aids", "cancer", 
+"retard", "nigga", "nigger", "kike", "monkey", "idiot", "stupid", "insane", "mental", 
+"death threat", "disgusting", "hate speech", "harass", "kill", "racist", "rape", "sexist", 
+"threaten", "violent", "xenophobe", "dyke", "kike", "spic", "stab", "murder", "rip",
+"fuck", "bitch"];
+
+function addOrUpdateUser(username, message) {
+
+  if (username in data) {
+    toxicListener.forEach((word) => {
+      if (message.includes(word)) {
+        if (not(word in data[username])) {
+          data[username][word] = 0;
+        }
+        data[username][word] += 1;
+      }})}
+}
 
 const app = express();
 const port = 3000;
@@ -112,7 +122,6 @@ let processed = [
   }
 ]
 
-
 // POST /upload endpoint to receive message data
 app.post('/upload', (req, res) => {
   const { author, guild, channel, message } = req.body;
@@ -121,6 +130,8 @@ app.post('/upload', (req, res) => {
   const formattedLastTenMessages = lastTenMessages.map((msg, index) => 
     `"${msg.author}" says: "${msg.message}"`
   ).join('\n');
+
+  addOrUpdateUser(author, message);
 
   // words that will trigger the AI to analyze the conversation for signs of cheating
   cheatListener = ['cheat', 'homework', 'quiz', 'test', 'exam', 'midterm', 'number', '(?:#|-?\d+(\.\d+)?)(?=#|\))', 'answers', 'answer', 'discord',
@@ -135,7 +146,6 @@ app.post('/upload', (req, res) => {
 
   console.log('beginning sentiment analysis')
   const prompt = 'Given the following message from a student, please rate the sentiment on a scale of 0-10. If more context is needed, please assign a sentiment of 2. Please be very careful in the way you asses this, take a breath if you need to. In doing so make sure to assess negative sentiments with higher numbers, and positive sentiments with lower numbers: ' + message;
-
 
   axios.post('https://api.openai.com/v1/engines/gpt-3.5-turbo-instruct/completions', {
     prompt: prompt,
@@ -215,7 +225,6 @@ app.post('/upload', (req, res) => {
   }
 
   // Add the message to the storage
-  // TODO: add to preprocessed
   messages.push({ author, guild, channel, message, timestamp: new Date() });
   res.status(201).json({ message: 'Message received' });
   console.log(message);
