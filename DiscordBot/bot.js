@@ -24,7 +24,7 @@ client.once('ready', async () => {
             
             try {
                 // Fetch the last 10 messages from each 'general' channel found
-                const messages = await channel.messages.fetch({ limit: 100 });
+                const messages = await channel.messages.fetch({ limit: 10 });
                 // TODO: STORE MESSAGES
                 console.log(`Last messages in ${guild.name} #${channel.name}:`);
                 messages.forEach(msg => console.log(`${msg.author.tag}: ${msg.content}`));
