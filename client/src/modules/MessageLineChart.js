@@ -22,7 +22,7 @@ const MessageLineChart = ({ labels, values, title, xAxisTitle, yAxisTitle, onLin
 
   return (
     <Box maxWidth="sm">
-      <Typography variant="h2">{title}</Typography>
+      <Typography width="500px" variant="h4" textAlign="center">{title}</Typography>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart
           data={data}

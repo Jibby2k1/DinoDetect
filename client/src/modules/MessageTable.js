@@ -1,28 +1,35 @@
-import React from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import React from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@mui/material";
 
 const MessageTable = ({ messages }) => (
   <TableContainer component={Paper}>
     <Table>
       <TableHead>
         <TableRow>
-          <TableCell>Author</TableCell>
-          <TableCell>Guild</TableCell>
-          <TableCell>Channel</TableCell>
-          <TableCell>Message</TableCell>
-          <TableCell>Timestamp</TableCell>
-          <TableCell>Sentiment</TableCell>
+          {messages[0] &&
+            Object.keys(messages[0]).map((key, index) => (
+              <TableCell key={index}>
+                {key.charAt(0).toUpperCase() + key.slice(1)}
+              </TableCell>
+            ))}
         </TableRow>
       </TableHead>
       <TableBody>
         {messages.map((row, index) => (
           <TableRow key={index}>
-            <TableCell>{row.author}</TableCell>
-            <TableCell>{row.guild}</TableCell>
-            <TableCell>{row.channel}</TableCell>
-            <TableCell>{row.message}</TableCell>
-            <TableCell>{row.timestamp.toLocaleString()}</TableCell>
-            <TableCell>{row.sentiment}</TableCell>
+            {Object.keys(row).map((key, cellIndex) => (
+              <TableCell key={cellIndex}>
+                {key === "timestamp" ? row[key].toLocaleString() : row[key]}
+              </TableCell>
+            ))}
           </TableRow>
         ))}
       </TableBody>

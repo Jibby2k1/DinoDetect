@@ -21,8 +21,8 @@ const MessageBarChart = ({ labels, values, title, xAxisTitle, yAxisTitle, onBarC
   }));
 
   return (
-    <Box  maxWidth="sm">
-      <Typography variant="h2">{title}</Typography>
+    <Box maxWidth="sm">
+      <Typography width="500px" variant="h4" textAlign="center">{title}</Typography>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart
           data={data}
