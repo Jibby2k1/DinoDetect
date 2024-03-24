@@ -10,8 +10,29 @@ const { EmbedBuilder } = require('discord.js');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 console.log(process.env.DISCORD_API_KEY)
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
-client.once('ready', () => {
+
+const CHANNEL_NAME = 'general'; // The channel name you're looking for
+
+client.once('ready', async () => {
     console.log('Bot is online!');
+
+    client.guilds.cache.forEach(async guild => {
+        const channels = guild.channels.cache.filter(c => c.name === CHANNEL_NAME);
+        
+        for (let channel of channels.values()) {
+            console.log('inside')
+            
+            try {
+                // Fetch the last 10 messages from each 'general' channel found
+                const messages = await channel.messages.fetch({ limit: 100 });
+                // TODO: STORE MESSAGES
+                console.log(`Last messages in ${guild.name} #${channel.name}:`);
+                messages.forEach(msg => console.log(`${msg.author.tag}: ${msg.content}`));
+            } catch (error) {
+                console.error(`Could not fetch messages from #${channel.name} in ${guild.name}:`, error);
+            }
+        }
+    });
 });
 
 client.on('messageCreate', async message => {
@@ -37,7 +58,7 @@ client.on('messageCreate', async message => {
     console.log(data);
     console.log(`Message from ${message.author.tag} in ${message.guild.name}#${message.channel.name}: ${message.content}`);
 
-    // Command for generating Word Clouds, 
+    // Command for generating Word Clouds
     if (message.content.startsWith('/wordcloud')) {
         console.log('Word Cloud command received');
         const args = message.content.slice('/wordcloud'.length).trim().split(/ +/);
@@ -48,13 +69,11 @@ client.on('messageCreate', async message => {
         }
         
         // generates a word cloud image and sends it to the channel
-        const imageUrl = 'https://imgur.com/a/RkZqsyv.png'; 
-        // Create an AttachmentBuilder instance for the image
-        const wordCloudEmbed = new EmbedBuilder()
-        .setImage('https://ibb.co/4RJ9HGS') 
+        const imageUrl = 'https://imgur.com/a/RkZqsyv.png'; // Placeholder for the image URL
 
-        //message.channel.send('https://imgur.com/a/RkZqsyv.jpg')
-        message.channel.send({ embeds: [wordCloudEmbed] }).catch(console.error);
+        // EmbedBuilder() was not working, so using a this alternative
+        const title = 'Word Cloud';
+        message.channel.send(`${title}\n${imageUrl}`);
     }
 
     // Command handling for summarizing

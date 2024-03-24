@@ -3,61 +3,118 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 const path = require('path');
 const cors = require('cors');
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
-const firebaseConfig = {
-  apiKey: "AIzaSyCfBn-nQAv3EyAdS27QTY7wKXx_Yh88A3g",
-  authDomain: "dinodetector.firebaseapp.com",
-  projectId: "dinodetector",
-  storageBucket: "dinodetector.appspot.com",
-  messagingSenderId: "859368794670",
-  appId: "1:859368794670:web:1320c3636fb70e04b8cdbf",
-  measurementId: "G-KLKC8LV4KC"
-};
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const db = getFirestore(app);
-
-try {
-  const docRef = await addDoc(collection(db, "users"), {
-    username: "catiasilva",
-    toxictyCount: 0
-  });
-  console.log("Document written with ID: ", docRef.id);
-} catch (e) {
-  console.error("Error adding document: ", e);
-}
 
 
 const sentiment_taps = [0.04174125, 0.12977557, 0.26427815, 0.40558056, 0.49706885,
   0.49706885, 0.40558056, 0.26427815, 0.12977557, 0.04174125];
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
-axios.get('https://api.openai.com/v1/engines', {
-    headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-    }
-}).then(response => {
-    console.log(response.data);
-}).catch(error => {
-    console.error(error);
-});
+// axios.get('https://api.openai.com/v1/engines', {
+//     headers: {
+//         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+//     }
+// }).then(response => {
+//     console.log(response.data);
+// }).catch(error => {
+//     console.error(error);
+// });
 
-const app1 = express();
+const app = express();
 const port = 3000;
 
-app1.use(cors());
-app1.use(cors());
+app.use(cors());
+app.use(cors());
 // Middleware to parse JSON bodies
-app1.use(bodyParser.json());
+app.use(bodyParser.json());
 
 // In-memory storage for messages
 let messages = [];
+let processed = [
+  {
+    author: "User123",
+    guild: "GuildA",
+    channel: "Channel1",
+    message: "Hello, everyone!",
+    timestamp: new Date("2024-03-23T10:00:00"),
+    sentiment: 4,
+  },
+  {
+    author: "User456",
+    guild: "GuildA",
+    channel: "Channel2",
+    message: "Good morning!",
+    timestamp: new Date("2024-03-23T10:05:00"),
+    sentiment: 3,
+  },
+  {
+    author: "User123",
+    guild: "GuildB",
+    channel: "Channel1",
+    message: "How's everyone doing?",
+    timestamp: new Date("2024-03-23T10:10:00"),
+    sentiment: 5,
+  },
+  {
+    author: "User789",
+    guild: "GuildA",
+    channel: "Channel3",
+    message: "Nice to see you all.",
+    timestamp: new Date("2024-03-23T10:15:00"),
+    sentiment: 4,
+  },
+  {
+    author: "User456",
+    guild: "GuildB",
+    channel: "Channel2",
+    message: "Hope you're all well.",
+    timestamp: new Date("2024-03-23T10:20:00"),
+    sentiment: 3,
+  },
+  {
+    author: "User123",
+    guild: "GuildA",
+    channel: "Channel1",
+    message: "Lovely day, isn't it?",
+    timestamp: new Date("2024-03-23T10:25:00"),
+    sentiment: 5,
+  },
+  {
+    author: "User789",
+    guild: "GuildC",
+    channel: "Channel3",
+    message: "Looking forward to our discussion.",
+    timestamp: new Date("2024-03-23T10:30:00"),
+    sentiment: 4,
+  },
+  {
+    author: "User456",
+    guild: "GuildA",
+    channel: "Channel2",
+    message: "Let's get started!",
+    timestamp: new Date("2024-03-23T10:35:00"),
+    sentiment: 3,
+  },
+  {
+    author: "User123",
+    guild: "GuildB",
+    channel: "Channel1",
+    message: "Any updates from everyone?",
+    timestamp: new Date("2024-03-23T10:40:00"),
+    sentiment: 4,
+  },
+  {
+    author: "User789",
+    guild: "GuildA",
+    channel: "Channel3",
+    message: "Excited for today's agenda!",
+    timestamp: new Date("2024-03-23T10:45:00"),
+    sentiment: 5,
+  }
+]
+
 
 // POST /upload endpoint to receive message data
-app1.post('/upload', async (req, res) => {
+app.post('/upload', (req, res) => {
   const { author, guild, channel, message } = req.body;
   // Extract the last 10 messages and formats them
   const lastTenMessages = messages.slice(-10);
@@ -65,31 +122,16 @@ app1.post('/upload', async (req, res) => {
     `"${msg.author}" says: "${msg.message}"`
   ).join('\n');
 
-  const querySnapshot = await getDocs(collection(db, "users"));
-  querySnapshot.forEach((doc) => {
-  console.log(`${doc.id} => ${doc.data()}`);
-});
-
   // words that will trigger the AI to analyze the conversation for signs of cheating
-  cheatListener = ['cheat', 'homework', 'quiz', 'test', 'exam', 'midterm', 'number', 
-  '(?:#|-?\d+(\.\d+)?)(?=#|\))', 'answers', 'answer', 'discord', 'sc', 'screenshot', 
-  'carry', 'google doc', 'DM', 'boost', 'spoiler', 'help', 'study', 'session', 'assignment', 
-  'lab', 'professor', 'teacher', 'essay', 'paper', 'final', 'project', 'group', 'partner', 
-  'collaborate', 'copy', 'plagiarize', 'unauthorized', 'prohibited', 'share answers', 
-  'leak', 'exam bank', 'test bank', 'solution manual', 'study guide', 'private tutor', 
-  'grade hack', 'academic integrity', 'forgery', 'deceive', 'misrepresent', 'unfair advantage', 
-  'bypass', 'fabricate', 'falsify', 'cheat sheet', 'crib notes', 'group chat', 'share notes', 
-  'pay for grades', 'contract cheating', 'ghostwriting', 'impersonate', 'proxy', 'collusion', 
-  'unauthorized assistance', 'offsite communication', 'code sharing', 'data leak', 
-  'exam questions', 'past papers', 'unofficial resources']
+  cheatListener = ['cheat', 'homework', 'quiz', 'test', 'exam', 'midterm', 'number', '(?:#|-?\d+(\.\d+)?)(?=#|\))', 'answers', 'answer', 'discord',
+      'sc', 'screenshot', 'carry', 'google doc', 'DM', 'boost', 'spoiler', 'help', 'study', 'session', 'assignment', 'lab', 'professor', 'teacher',
+      'essay', 'paper', 'final', 'project', 'group', 'partner', 'collaborate', 'copy', 'plagiarize', 'unauthorized', 'prohibited', 'share answers', 
+      'leak', 'exam bank', 'test bank', 'solution manual', 'study guide', 'private tutor', 'grade hack', 'academic integrity', 'forgery', 'deceive',
+      'misrepresent', 'unfair advantage', 'bypass', 'fabricate', 'falsify', 'cheat sheet', 'crib notes', 'group chat', 'share notes', 
+      'pay for grades', 'contract cheating', 'ghostwriting', 'impersonate', 'proxy', 'collusion', 'unauthorized assistance', 
+      'offsite communication', 'code sharing', 'data leak', 'exam questions', 'past papers', 'unofficial resources']
 
-  toxicListener = ["abuse", "assault", "attack", "bigot", "bully", "aids", "cancer", 
-  "retard", "nigga", "nigger", "kike", "monkey", "idiot", "stupid", "insane", "mental", 
-  "death threat", "disgusting", "hate speech", "harass", "kill", "racist", "rape", "sexist", 
-  "threaten", "violent", "xenophobe", "dyke", "kike", "spic", "stab", "murder", "rip"];
-
-  const containsCheatWord = cheatListener.some(keyword => message.includes(keyword));
-  const containsToxicWord = toxicListener.some(keyword => message.includes(keyword));
+  const containsKeyword = cheatListener.some(keyword => message.includes(keyword));
 
   console.log('beginning sentiment analysis')
   const prompt = 'Given the following message from a student, please rate the sentiment on a scale of 0-10. If more context is needed, please assign a sentiment of 2. Please be very careful in the way you asses this, take a breath if you need to. In doing so make sure to assess negative sentiments with higher numbers, and positive sentiments with lower numbers: ' + message;
@@ -128,7 +170,7 @@ app1.post('/upload', async (req, res) => {
     console.error(error);
 });
 
-  if (containsCheatWord) {
+  if (containsKeyword) {
     // Checks whether the last 10 messages are likely to be cheating
     console.log('beginning to process message')
     const prompt = `Assess the following student conversation for potential academic dishonesty, including but not limited to cheating, 
@@ -180,7 +222,7 @@ app1.post('/upload', async (req, res) => {
 });
 
 // GET /analysis endpoint to retrieve messages from the last X minutes
-app1.get('/analysis', (req, res) => {
+app.get('/analysis', (req, res) => {
   const { minutes } = req.query;
 
   // Validate the input
@@ -200,10 +242,10 @@ app1.get('/analysis', (req, res) => {
 });
 
 // create a root get endpoint that will display preprocessed data
-app1.get('/', (req, res) => {
+app.get('/', (req, res) => {
   res.json({processed, messages});
 });
 
-app1.listen(port, () => {
+app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
