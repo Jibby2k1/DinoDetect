@@ -3,13 +3,14 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 const path = require('path');
 const cors = require('cors');
+const { time } = require('console');
 
 const sentiment_taps = [0.04174125, 0.12977557, 0.26427815, 0.40558056, 0.49706885,
   0.49706885, 0.40558056, 0.26427815, 0.12977557, 0.04174125];
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 let data = {
-  'test_user': {'test_word': 0},
+  'test_user': {'test_word': {'wordcount': 0, 'timestamp': []}},
 }
 toxicListener = ["abuse", "assault", "attack", "bigot", "bully", "aids", "cancer", 
 "retard", "nigga", "nigger", "kike", "monkey", "idiot", "stupid", "insane", "mental", 
@@ -17,16 +18,23 @@ toxicListener = ["abuse", "assault", "attack", "bigot", "bully", "aids", "cancer
 "threaten", "violent", "xenophobe", "dyke", "kike", "spic", "stab", "murder", "rip",
 "fuck", "bitch"];
 
-function addOrUpdateUser(username, message) {
+function addOrUpdateUser(username, message, timestamp) {
 
   if (username in data) {
     toxicListener.forEach((word) => {
       if (message.includes(word)) {
-        if (not(word in data[username])) {
-          data[username][word] = 0;
+        if (!(word in data[username])) {
+          data[username][word] = 1;
+          data[username]['timestamp'].push(timestamp);
         }
-        data[username][word] += 1;
-      }})}
+        else{
+          data[username][word] += 1;
+          data[username]['timestamp'].push(timestamp);
+        }
+      }
+      console.log(data[username][word])
+    })}
+  
 }
 
 const app = express();
@@ -131,7 +139,7 @@ app.post('/upload', (req, res) => {
     `"${msg.author}" says: "${msg.message}"`
   ).join('\n');
 
-  addOrUpdateUser(author, message);
+  addOrUpdateUser(author, message, new Date());
 
   // words that will trigger the AI to analyze the conversation for signs of cheating
   cheatListener = ['cheat', 'homework', 'quiz', 'test', 'exam', 'midterm', 'number', '(?:#|-?\d+(\.\d+)?)(?=#|\))', 'answers', 'answer', 'discord',
